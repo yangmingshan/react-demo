@@ -8,11 +8,9 @@ const NODE_ENV = process.env.NODE_ENV || 'production';
 const _DEV_ = NODE_ENV === 'development';
 
 const config = {
-  context: path.resolve(__dirname, './src'),
-  entry: {
-    main: './index.js'
-  },
+  entry: ['react-hot-loader/patch', './src/index.js'],
   output: {
+    publicPath: '/',
     path: path.resolve(__dirname, './dist'),
     filename: _DEV_ ? '[name].js' : 'js/[name].[chunkhash:8].js',
     chunkFilename: _DEV_ ? '[name].js' : 'js/[name].[chunkhash:8].js'
@@ -56,7 +54,7 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: 'index.tpl',
+      template: 'src/index.tpl',
       chunks: ['manifest', 'vendor', 'main']
     }),
     new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[chunkhash:8].css'),
@@ -91,7 +89,6 @@ if (!_DEV_) {
   config.devtool = 'cheap-module-eval-source-map';
   config.devServer = {
     port: 8080,
-    hot: true,
     stats: 'errors-only',
     overlay: true,
     host: '0.0.0.0',
@@ -100,8 +97,8 @@ if (!_DEV_) {
     proxy: {
       '/api': {
         target: 'http://api.development.com',
-        changeOrigin: true,
-        pathRewrite: { '^/api': '/' }
+        pathRewrite: { '^/api': '' },
+        changeOrigin: true
       }
     }
   };

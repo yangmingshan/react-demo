@@ -14,15 +14,26 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
+import { AppContainer } from 'react-hot-loader';
 import store from './store';
 import history from './history';
 import App from './app';
 
-ReactDOM.render(
-  <Provider store={store}>
-    <Router history={history}>
-      <Route component={App} />
-    </Router>
-  </Provider>,
-  document.getElementById('app')
-);
+const render = () => {
+  ReactDOM.render(
+    <AppContainer warnings={false}>
+      <Provider store={store}>
+        <Router history={history}>
+          <Route component={App} />
+        </Router>
+      </Provider>
+    </AppContainer>,
+    document.getElementById('app')
+  );
+};
+
+render();
+
+if (module.hot) {
+  module.hot.accept('./app', render);
+}
