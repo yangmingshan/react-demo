@@ -55,7 +55,7 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({ template: 'src/index.tpl' }),
-    new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[chunkhash:8].css')
+    new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[contenthash:8].css')
   ]
 };
 
