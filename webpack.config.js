@@ -1,5 +1,4 @@
 const path = require('path');
-const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -8,6 +7,7 @@ const NODE_ENV = process.env.NODE_ENV || 'production';
 const _DEV_ = NODE_ENV === 'development';
 
 const config = {
+  mode: NODE_ENV,
   entry: ['react-hot-loader/patch', './src/index.js'],
   output: {
     publicPath: '/',
@@ -20,7 +20,7 @@ const config = {
       test: /\.css$/,
       use: ExtractTextPlugin.extract({
         fallback: 'style-loader',
-        use: [ 'css-loader', 'postcss-loader' ]
+        use: [ 'css-loader?minimize', 'postcss-loader' ]
       })
     }, {
       test: /\.jsx?$/,
@@ -28,7 +28,7 @@ const config = {
       use: [ 'babel-loader' ]
     }, {
       test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-      use: [ {
+      use: [{
         loader: 'url-loader',
         options: {
           limit: 10000,
@@ -46,46 +46,20 @@ const config = {
       }]
     }]
   },
+  optimization: {
+    runtimeChunk: { name: 'manifest' },
+    splitChunks: {
+      chunks: 'all',
+      filename: 'js/vendor.[chunkhash:8].js'
+    }
+  },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(NODE_ENV)
-      }
-    }),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: 'src/index.tpl',
-      chunks: ['manifest', 'vendor', 'main']
-    }),
-    new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[chunkhash:8].css'),
-    new webpack.optimize.ModuleConcatenationPlugin()
+    new HtmlWebpackPlugin({ template: 'src/index.tpl' }),
+    new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[chunkhash:8].css')
   ]
 };
 
-if (!_DEV_) {
-  config.devtool = 'source-map';
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    sourceMap: true,
-    comments: false,
-    compress: {
-      warnings: false
-    }
-  }), new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: function(module, count) {
-      return (
-        module.resource &&
-        /\.js$/.test(module.resource) &&
-        module.resource.indexOf(
-          path.join(__dirname, 'node_modules')
-        ) === 0
-      );
-    }
-  }), new webpack.optimize.CommonsChunkPlugin({
-    name: 'manifest',
-    chunks: ['vendor']
-  }));
-} else {
+if (_DEV_) {
   config.devtool = 'cheap-module-eval-source-map';
   config.devServer = {
     port: 8080,
