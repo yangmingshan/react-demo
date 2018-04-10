@@ -4,6 +4,8 @@ import { Switch, Route } from 'react-router';
 import routes from './routes';
 import NotFound from './pages/not-found';
 
+import './app.css';
+
 class App extends React.Component {
   render() {
     return (

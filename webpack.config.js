@@ -1,6 +1,7 @@
 const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
@@ -12,16 +13,13 @@ const config = {
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './dist'),
-    filename: _DEV_ ? '[name].js' : 'js/[name].[chunkhash:8].js',
-    chunkFilename: _DEV_ ? '[name].js' : 'js/[name].[chunkhash:8].js'
+    filename: _DEV_ ? '[name].js' : 'js/[name].[contenthash:8].js',
+    chunkFilename: _DEV_ ? '[name].js' : 'js/[name].[contenthash:8].js'
   },
   module: {
     rules: [{
       test: /\.css$/,
-      use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [ 'css-loader?minimize', 'postcss-loader' ]
-      })
+      use: [ 'style-loader', 'css-loader', 'postcss-loader' ]
     }, {
       test: /\.jsx?$/,
       exclude: /node_modules/,
@@ -46,16 +44,18 @@ const config = {
       }]
     }]
   },
-  optimization: {
-    runtimeChunk: { name: 'manifest' },
-    splitChunks: {
-      chunks: 'all',
-      filename: 'js/vendor.[chunkhash:8].js'
-    }
-  },
   plugins: [
-    new HtmlWebpackPlugin({ template: 'src/index.tpl' }),
-    new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[contenthash:8].css')
+    new HtmlWebpackPlugin({
+      template: 'src/index.tpl',
+      inlineSource: 'manifest.[a-z0-9]{8}.js$'
+    }),
+    new HtmlWebpackInlineSourcePlugin(),
+    function() {
+      this.hooks.emit.tap('remove-source-webpack-plugin', compilation => {
+        const manifest = Object.keys(compilation.assets).find(item => /manifest.[a-z0-9]{8}.js$/.test(item));
+        delete compilation.assets[manifest];
+      });
+    }
   ]
 };
 
@@ -76,9 +76,29 @@ if (_DEV_) {
       }
     }
   };
+} else {
+  config.module.rules[0].use = [{
+    loader: MiniCssExtractPlugin.loader
+  }, {
+    loader: 'css-loader',
+    options: { minimize: true }
+  }, {
+    loader: 'postcss-loader'
+  }];
+  config.plugins.push(new MiniCssExtractPlugin({
+    filename: 'css/[name].[contenthash:8].css',
+    chunkFilename: 'css/[name].[contenthash:8].css'
+  }));
+  config.optimization = {
+    runtimeChunk: { name: 'manifest' },
+    splitChunks: {
+      chunks: 'all',
+      filename: 'js/vendor.[contenthash:8].js'
+    }
+  };
 }
 
-if (process.env.ENV === 'analysis') {
+if (process.env.MODE === 'analysis') {
   config.plugins.push(new BundleAnalyzerPlugin());
 }
 
