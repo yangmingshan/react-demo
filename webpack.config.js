@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const RemoveSourceWebpackPlugin = require('remove-source-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -50,12 +51,7 @@ const config = {
       inlineSource: 'manifest.[a-z0-9]{8}.js$'
     }),
     new HtmlWebpackInlineSourcePlugin(),
-    function() {
-      this.hooks.emit.tap('remove-source-webpack-plugin', compilation => {
-        const manifest = Object.keys(compilation.assets).find(item => /manifest.[a-z0-9]{8}.js$/.test(item));
-        delete compilation.assets[manifest];
-      });
-    }
+    new RemoveSourceWebpackPlugin('manifest.[a-z0-9]{8}.js$')
   ]
 };
 
