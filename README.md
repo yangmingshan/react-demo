@@ -1,27 +1,27 @@
 # react-demo
 
-> 一个全功能的 React.js 应用 demo 或模板
+> A full feature React.js application demo or template
 
-克隆或下载到本地体验，新项目可当作应用模板使用，替代 [create-react-app](https://github.com/facebookincubator/create-react-app)（滑稽）。
+Clone or download for use, new projects can be used as application templates to replace [create-react-app](https://github.com/facebookincubator/create-react-app) (haha).
 
-## 使用
+## Usage
 
 ``` bash
-# 安装依赖
+# install dependencies
 yarn
 
-# 代码检查
+# code lint
 npm run lint
 
-# 代码检查并自动修复
+# code lint & fix
 npm run fix
 
-# 本地开发
+# develop
 npm run dev
 
-# 生产构建
+# build for production
 npm run build
 
-# 代码分析
+# code analyze
 npm run analyze
 ```

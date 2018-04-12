@@ -1,34 +1,34 @@
 const path = require('path');
-const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const RemoveSourceWebpackPlugin = require('remove-source-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const _DEV_ = NODE_ENV === 'development';
 
 const config = {
+  mode: NODE_ENV,
   entry: ['react-hot-loader/patch', './src/index.js'],
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './dist'),
-    filename: _DEV_ ? '[name].js' : 'js/[name].[chunkhash:8].js',
-    chunkFilename: _DEV_ ? '[name].js' : 'js/[name].[chunkhash:8].js'
+    filename: _DEV_ ? '[name].js' : 'js/[name].[contenthash:8].js',
+    chunkFilename: _DEV_ ? '[name].js' : 'js/[name].[contenthash:8].js'
   },
   module: {
     rules: [{
       test: /\.css$/,
-      use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [ 'css-loader', 'postcss-loader' ]
-      })
+      use: [ 'style-loader', 'css-loader', 'postcss-loader' ]
     }, {
       test: /\.jsx?$/,
       exclude: /node_modules/,
       use: [ 'babel-loader' ]
     }, {
       test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-      use: [ {
+      use: [{
         loader: 'url-loader',
         options: {
           limit: 10000,
@@ -47,45 +47,16 @@ const config = {
     }]
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(NODE_ENV)
-      }
-    }),
     new HtmlWebpackPlugin({
-      filename: 'index.html',
       template: 'src/index.tpl',
-      chunks: ['manifest', 'vendor', 'main']
+      inlineSource: 'manifest.[a-z0-9]{8}.js$'
     }),
-    new ExtractTextPlugin(_DEV_ ? '[name].css' : 'css/[name].[chunkhash:8].css'),
-    new webpack.optimize.ModuleConcatenationPlugin()
+    new HtmlWebpackInlineSourcePlugin(),
+    new RemoveSourceWebpackPlugin('manifest.[a-z0-9]{8}.js$')
   ]
 };
 
-if (!_DEV_) {
-  config.devtool = 'source-map';
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    sourceMap: true,
-    comments: false,
-    compress: {
-      warnings: false
-    }
-  }), new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: function(module, count) {
-      return (
-        module.resource &&
-        /\.js$/.test(module.resource) &&
-        module.resource.indexOf(
-          path.join(__dirname, 'node_modules')
-        ) === 0
-      );
-    }
-  }), new webpack.optimize.CommonsChunkPlugin({
-    name: 'manifest',
-    chunks: ['vendor']
-  }));
-} else {
+if (_DEV_) {
   config.devtool = 'cheap-module-eval-source-map';
   config.devServer = {
     port: 8080,
@@ -102,9 +73,29 @@ if (!_DEV_) {
       }
     }
   };
+} else {
+  config.module.rules[0].use = [{
+    loader: MiniCssExtractPlugin.loader
+  }, {
+    loader: 'css-loader',
+    options: { minimize: true }
+  }, {
+    loader: 'postcss-loader'
+  }];
+  config.plugins.push(new MiniCssExtractPlugin({
+    filename: 'css/[name].[contenthash:8].css',
+    chunkFilename: 'css/[name].[contenthash:8].css'
+  }), new OptimizeCssAssetsPlugin());
+  config.optimization = {
+    runtimeChunk: { name: 'manifest' },
+    splitChunks: {
+      chunks: 'all',
+      filename: 'js/vendor.[contenthash:8].js'
+    }
+  };
 }
 
-if (process.env.ENV === 'analysis') {
+if (process.env.MODE === 'analysis') {
   config.plugins.push(new BundleAnalyzerPlugin());
 }
 
