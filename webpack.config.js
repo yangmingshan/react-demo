@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const RemoveSourceWebpackPlugin = require('remove-source-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -84,7 +85,7 @@ if (_DEV_) {
   config.plugins.push(new MiniCssExtractPlugin({
     filename: 'css/[name].[contenthash:8].css',
     chunkFilename: 'css/[name].[contenthash:8].css'
-  }));
+  }), new OptimizeCssAssetsPlugin());
   config.optimization = {
     runtimeChunk: { name: 'manifest' },
     splitChunks: {
