@@ -1,9 +1,8 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 
-class Help extends React.Component {
-  render() {
-    return <div>Help</div>;
-  }
+function Help() {
+  return <div>Help</div>;
 }
 
-export default Help;
+export default hot(Help);

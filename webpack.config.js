@@ -1,58 +1,85 @@
 const path = require('path');
+const webpack = require('webpack');
+const WebpackBar = require('webpackbar');
+const WebpackStylish = require('webpack-stylish');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const RemoveSourceWebpackPlugin = require('remove-source-webpack-plugin');
+const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin; // prettier-ignore
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const _DEV_ = NODE_ENV === 'development';
 
 const config = {
   mode: NODE_ENV,
-  entry: ['react-hot-loader/patch', './src/index.js'],
+  entry: './src/index.js',
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, './dist'),
     filename: _DEV_ ? '[name].js' : 'js/[name].[contenthash:8].js',
     chunkFilename: _DEV_ ? '[name].js' : 'js/[name].[contenthash:8].js'
   },
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom'
+    }
+  },
   module: {
-    rules: [{
-      test: /\.css$/,
-      use: [ 'style-loader', 'css-loader', 'postcss-loader' ]
-    }, {
-      test: /\.jsx?$/,
-      exclude: /node_modules/,
-      use: [ 'babel-loader' ]
-    }, {
-      test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-      use: [{
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: 'images/[name].[hash:8].[ext]'
-        }
-      }]
-    }, {
-      test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-      use: [{
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: 'fonts/[name].[hash:8].[ext]'
-        }
-      }]
-    }]
+    rules: [
+      {
+        test: /\.css/,
+        use: [
+          {
+            loader: _DEV_ ? 'style-loader' : MiniCssExtractPlugin.loader
+          },
+          {
+            loader: 'css-loader',
+            options: { modules: true }
+          },
+          {
+            loader: 'postcss-loader'
+          }
+        ]
+      },
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: ['babel-loader']
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 4096,
+              name: 'images/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 4096,
+              name: 'fonts/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }
+    ]
   },
   plugins: [
+    new WebpackBar(),
     new HtmlWebpackPlugin({
-      template: 'src/index.tpl',
-      inlineSource: 'manifest.[a-z0-9]{8}.js$'
-    }),
-    new HtmlWebpackInlineSourcePlugin(),
-    new RemoveSourceWebpackPlugin('manifest.[a-z0-9]{8}.js$')
+      filename: 'index.html',
+      template: 'src/index.ejs'
+    })
   ]
 };
 
@@ -74,23 +101,34 @@ if (_DEV_) {
     }
   };
 } else {
-  config.module.rules[0].use = [{
-    loader: MiniCssExtractPlugin.loader
-  }, {
-    loader: 'css-loader',
-    options: { minimize: true }
-  }, {
-    loader: 'postcss-loader'
-  }];
-  config.plugins.push(new MiniCssExtractPlugin({
-    filename: 'css/[name].[contenthash:8].css',
-    chunkFilename: 'css/[name].[contenthash:8].css'
-  }), new OptimizeCssAssetsPlugin());
+  config.stats = 'none';
+  config.plugins.push(
+    new CleanWebpackPlugin(),
+    new webpack.HashedModuleIdsPlugin(),
+    new ScriptExtHtmlWebpackPlugin({
+      inline: [/runtime\.[a-z0-9]{8}\.js$/],
+      preload: {
+        chunks: 'initial',
+        test: [/vendors\.[a-z0-9]{8}\.js$/, /main\.[a-z0-9]{8}\.js$/]
+      }
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'css/[name].[contenthash:8].css',
+      chunkFilename: 'css/[name].[contenthash:8].css'
+    }),
+    new OptimizeCssAssetsPlugin(),
+    new WebpackStylish()
+  );
   config.optimization = {
-    runtimeChunk: { name: 'manifest' },
+    runtimeChunk: { name: 'runtime' },
     splitChunks: {
-      chunks: 'all',
-      filename: 'js/vendor.[contenthash:8].js'
+      cacheGroups: {
+        vendors: {
+          name: 'vendors',
+          chunks: 'initial',
+          test: /[\\/]node_modules[\\/](?!.*normalize\.css)/
+        }
+      }
     }
   };
 }

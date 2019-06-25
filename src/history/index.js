@@ -1,12 +1,15 @@
 import qs from 'qs';
-import createHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 
 function addQuery(history) {
   const location = history.location;
-  history.location = { ...location, query: qs.parse(location.search, { ignoreQueryPrefix: true }) };
+  history.location = {
+    ...location,
+    query: qs.parse(location.search, { ignoreQueryPrefix: true })
+  };
 }
 
-const history = createHistory();
+const history = createBrowserHistory();
 
 addQuery(history);
 

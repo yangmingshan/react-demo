@@ -1,16 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { hot } from 'react-hot-loader/root';
 
-class Home extends React.Component {
-  render() {
-    return (
+function Home() {
+  return (
+    <div>
+      <div>Home</div>
       <div>
-        <div>Home</div>
-        <div><Link to="/about">About</Link></div>
-        <div><Link to="/help">Help</Link></div>
+        <Link to="/about">About</Link>
       </div>
-    );
-  }
+      <div>
+        <Link to="/help">Help</Link>
+      </div>
+    </div>
+  );
 }
 
-export default Home;
+export default hot(Home);
