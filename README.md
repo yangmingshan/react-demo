@@ -11,17 +11,19 @@ Clone or download for use, new projects can be used as application templates to 
 yarn
 
 # code lint
-npm run lint
+yarn lint:script
+yarn lint:style
 
 # code lint & fix
-npm run fix
+yarn lint:script --fix
+yarn lint:style --fix
 
 # develop
-npm run dev
+yarn dev
 
 # build for production
-npm run build
+yarn build
 
 # code analyze
-npm run analyze
+yarn analyze
 ```
