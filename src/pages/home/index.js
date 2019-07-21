@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { hot } from 'react-hot-loader/root';
 
 function Home() {
   return (
@@ -16,4 +15,4 @@ function Home() {
   );
 }
 
-export default hot(Home);
+export default Home;
