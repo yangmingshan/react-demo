@@ -13,10 +13,13 @@ module.exports = {
     'prettier/standard',
     'prettier/react'
   ],
+  plugins: ['react-hooks'],
   rules: {
     'react/prop-types': 0,
-    'no-console': isProd ? 'error' : 'off',
-    'no-debugger': isProd ? 'error' : 'off'
+    'react-hooks/rules-of-hooks': 2,
+    'react-hooks/exhaustive-deps': 2,
+    'no-console': isProd ? 2 : 0,
+    'no-debugger': isProd ? 2 : 0
   },
   settings: {
     react: {
