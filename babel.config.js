@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = ({ env }) => ({
   presets: [
     [
       '@babel/preset-env',
@@ -6,7 +6,8 @@ module.exports = {
         loose: true,
         modules: false,
         useBuiltIns: 'usage',
-        corejs: 3
+        corejs: 3,
+        targets: env('development') ? 'last 1 Chrome versions' : undefined
       }
     ],
     '@babel/preset-react'
@@ -20,6 +21,17 @@ module.exports = {
         useESModules: true
       }
     ],
-    '@babel/plugin-syntax-dynamic-import'
+    [
+      '@babel/plugin-proposal-optional-chaining',
+      {
+        loose: true
+      }
+    ],
+    [
+      '@babel/plugin-proposal-nullish-coalescing-operator',
+      {
+        loose: true
+      }
+    ]
   ]
-};
+});
