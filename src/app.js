@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react';
-import { connect } from 'react-redux';
 import { Switch, Route } from 'react-router';
 import { hot } from 'react-hot-loader/root';
 import routes from './routes';
@@ -24,10 +23,4 @@ function App() {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    todos: state.todos
-  };
-}
-
-export default hot(connect(mapStateToProps)(App));
+export default hot(App);

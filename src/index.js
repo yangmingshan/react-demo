@@ -11,17 +11,13 @@ import 'core-js/es/promise';
 import 'react-hot-loader';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { Router, Route } from 'react-router';
-import store from './store';
+import { Router } from 'react-router';
 import history from './history';
 import App from './app';
 
 ReactDOM.render(
-  <Provider store={store}>
-    <Router history={history}>
-      <Route component={App} />
-    </Router>
-  </Provider>,
+  <Router history={history}>
+    <App />
+  </Router>,
   document.getElementById('app')
 );
