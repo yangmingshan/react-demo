@@ -1,8 +1,9 @@
 import qs from 'qs';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { createBrowserHistory } from 'history';
 
 function addQuery(history) {
-  const location = history.location;
+  const { location } = history;
   history.location = {
     ...location,
     query: qs.parse(location.search, { ignoreQueryPrefix: true })

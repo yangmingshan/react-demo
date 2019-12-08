@@ -1,25 +1,29 @@
+'use strict';
+
+const confusingBrowserGlobals = require('confusing-browser-globals');
+
 const isProd = process.env.NODE_ENV === 'production';
 
-module.exports = {
+const config = {
   root: true,
   parser: 'babel-eslint',
   env: {
     browser: true
   },
   extends: [
-    'standard',
-    'plugin:react/recommended',
-    isProd ? 'plugin:prettier/recommended' : 'prettier',
-    'prettier/standard',
+    'xo/esnext',
+    require.resolve('xo/config/plugins'),
+    'xo-react',
+    'plugin:prettier/recommended',
+    'prettier/unicorn',
     'prettier/react'
   ],
-  plugins: ['react-hooks'],
   rules: {
-    'react/prop-types': 0,
-    'react-hooks/rules-of-hooks': 2,
-    'react-hooks/exhaustive-deps': 2,
     'no-console': isProd ? 2 : 0,
-    'no-debugger': isProd ? 2 : 0
+    'no-debugger': isProd ? 2 : 0,
+    'no-restricted-globals': [2, ...confusingBrowserGlobals],
+    'import/no-unassigned-import': 0,
+    'react/prop-types': 0,
   },
   settings: {
     react: {
@@ -27,3 +31,16 @@ module.exports = {
     }
   }
 };
+
+if (!isProd) {
+  config.extends = [
+    ...config.extends,
+    'silent',
+    'silent/import',
+    'silent/prettier',
+    'silent/react',
+    'silent/unicorn'
+  ];
+}
+
+module.exports = config;

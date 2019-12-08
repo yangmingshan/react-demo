@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path');
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
@@ -5,9 +7,9 @@ const WebpackStylish = require('webpack-stylish');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin; // prettier-ignore
 
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const _DEV_ = NODE_ENV === 'development';

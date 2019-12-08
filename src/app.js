@@ -9,10 +9,10 @@ function App() {
   return (
     <Suspense fallback={<Loading />}>
       <Switch>
-        {routes.map((route, i) => (
+        {routes.map(route => (
           <Route
-            key={i}
-            exact={!!route.exact}
+            key={route.path}
+            exact={Boolean(route.exact)}
             path={route.path}
             component={route.component}
           />

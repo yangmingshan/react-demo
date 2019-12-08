@@ -1,7 +1,7 @@
 import 'normalize.css';
 import './index.css';
 
-// polyfills
+// Polyfills
 // https://reactjs.org/docs/javascript-environment-requirements.html
 import 'raf/polyfill';
 import 'core-js/es/map';
@@ -19,5 +19,5 @@ ReactDOM.render(
   <Router history={history}>
     <App />
   </Router>,
-  document.getElementById('app')
+  document.querySelector('#app')
 );
